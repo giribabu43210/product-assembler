@@ -1,0 +1,37 @@
+pipeline {
+  agent any
+
+  stages {
+    stage('Download code') {
+      steps {
+        git branch: https://'github.com/intelliqittrainings/maven.git'
+      }
+    }
+
+    stage('Build') {
+      steps {
+        sh 'npm install'
+        sh 'npm run build'
+      }
+    }
+
+    stage('Deploy') {
+      steps {
+        sh 'ssh user@server "cd /path/to/deploy/dir && rm -rf * && mkdir build"'
+        sh 'rsync -avz build/ user@server:/path/to/deploy/dir/build/'
+      }
+    }
+
+    stage('Test') {
+      steps {
+        sh 'npm run test'
+      }
+    }
+
+    stage('Deliver') {
+      steps {
+        sh 'ssh user@server "cd /path/to/deploy/dir && ./deploy.sh"'
+      }
+    }
+  }
+}
